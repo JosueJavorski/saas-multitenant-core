@@ -1,37 +1,14 @@
-'use client'
-
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { login } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-export default function LoginPage() {
-  const router = useRouter()
-  const supabase = createClient()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
+interface LoginPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setErrorMsg('')
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    if (error) {
-      setErrorMsg(error.message)
-      setLoading(false)
-    } else {
-      router.push('/dashboard')
-      router.refresh()
-    }
-  }
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const resolvedSearchParams = await searchParams
+  const errorMsg = typeof resolvedSearchParams.error === 'string' ? resolvedSearchParams.error : undefined
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -42,17 +19,16 @@ export default function LoginPage() {
             Insira suas credenciais para entrar na sua conta
           </p>
         </div>
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form action={login} className="space-y-4">
           <div className="space-y-1">
             <label htmlFor="email" className="text-sm font-medium">
               E-mail
             </label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="exemplo@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -62,10 +38,9 @@ export default function LoginPage() {
             </label>
             <Input
               id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -74,8 +49,8 @@ export default function LoginPage() {
               {errorMsg}
             </div>
           )}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Entrando...' : 'Entrar'}
+          <Button type="submit" className="w-full">
+            Entrar
           </Button>
         </form>
         <div className="text-center text-sm">

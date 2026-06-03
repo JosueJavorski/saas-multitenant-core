@@ -1,40 +1,15 @@
-'use client'
-
-import React, { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { signup } from '../actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-export default function SignupPage() {
-  const supabase = createClient()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [errorMsg, setErrorMsg] = useState('')
-  const [successMsg, setSuccessMsg] = useState('')
+interface SignupPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setErrorMsg('')
-    setSuccessMsg('')
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
-      },
-    })
-
-    if (error) {
-      setErrorMsg(error.message)
-      setLoading(false)
-    } else {
-      setSuccessMsg('Cadastro realizado com sucesso! Verifique seu e-mail.')
-      setLoading(false)
-    }
-  }
+export default async function SignupPage({ searchParams }: SignupPageProps) {
+  const resolvedSearchParams = await searchParams
+  const errorMsg = typeof resolvedSearchParams.error === 'string' ? resolvedSearchParams.error : undefined
+  const successMsg = typeof resolvedSearchParams.success === 'string' ? resolvedSearchParams.success : undefined
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -45,17 +20,16 @@ export default function SignupPage() {
             Cadastre seu e-mail e senha para começar
           </p>
         </div>
-        <form onSubmit={handleSignup} className="space-y-4">
+        <form action={signup} className="space-y-4">
           <div className="space-y-1">
             <label htmlFor="email" className="text-sm font-medium">
               E-mail
             </label>
             <Input
               id="email"
+              name="email"
               type="email"
               placeholder="exemplo@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
@@ -65,10 +39,9 @@ export default function SignupPage() {
             </label>
             <Input
               id="password"
+              name="password"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -82,8 +55,8 @@ export default function SignupPage() {
               {successMsg}
             </div>
           )}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Cadastrando...' : 'Cadastrar'}
+          <Button type="submit" className="w-full">
+            Cadastrar
           </Button>
         </form>
         <div className="text-center text-sm">
