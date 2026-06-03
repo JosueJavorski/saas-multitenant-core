@@ -21,7 +21,17 @@ export default async function DashboardLayout({
     <div className="min-h-screen flex flex-col bg-background">
       <header className="border-b">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="font-bold text-lg">SaaS Org Dashboard</div>
+          <div className="flex items-center gap-6">
+            <div className="font-bold text-lg">SaaS Org Dashboard</div>
+            <nav className="flex items-center gap-4 text-sm font-medium">
+              <a href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
+                Início
+              </a>
+              <a href="/billing" className="text-muted-foreground hover:text-foreground transition-colors">
+                Faturamento
+              </a>
+            </nav>
+          </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">{user.email}</span>
             <form action="/auth/logout" method="POST">
